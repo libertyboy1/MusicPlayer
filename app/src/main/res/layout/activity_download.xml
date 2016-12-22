@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/com.view.media"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/main_bg"
+    android:orientation="vertical">
+
+    <include layout="@layout/titlebar" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/iv_nothing"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="70dp"
+            android:src="@mipmap/nothing" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#30ffffff" />
+
+            <com.view.media.view.ListSlideView
+                android:id="@+id/lv_main"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:divider="#30ffffff"
+                android:dividerHeight="1dp"
+                android:listSelector="@null"
+                app:mode="right" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+
+</LinearLayout>
