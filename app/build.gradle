@@ -31,4 +31,5 @@ dependencies {
     compile project(':haorefresh')
     compile 'com.wang.avi:library:1.0.1'
     compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.android.support:design:25.1.0'
 }

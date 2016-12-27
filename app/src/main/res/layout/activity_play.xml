@@ -22,19 +22,10 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <com.view.media.view.LrcView
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+            <com.view.media.view.LyricView
                 android:id="@+id/lrc_main"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:lrcAnimationDuration="1000"
-                app:lrcCurrentTextColor="?attr/colorPrimary"
-                app:lrcDividerHeight="24dp"
-                app:lrcLabel="找不到歌词"
-                app:lrcNormalTextColor="@android:color/darker_gray"
-                app:lrcPadding="16dp"
-                app:lrcTextSize="16dp" />
+                android:layout_height="match_parent"></com.view.media.view.LyricView>
 
 
         </FrameLayout>
@@ -54,7 +45,7 @@
                 android:text="00:00"
                 android:textColor="@android:color/white" />
 
-            <SeekBar
+            <android.support.v7.widget.AppCompatSeekBar
                 android:id="@+id/sb_progress"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

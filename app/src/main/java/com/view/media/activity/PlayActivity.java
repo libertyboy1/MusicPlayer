@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
+import android.support.v7.widget.AppCompatSeekBar;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -15,35 +16,38 @@ import com.view.media.R;
 import com.view.media.Service.PlayService;
 import com.view.media.api.DownLoadMusicApi;
 import com.view.media.api.MusicLrcApi;
+import com.view.media.api.MusicMvApi;
 import com.view.media.api.NetWorkStateListener;
-import com.view.media.bean.DownLoadBean;
 import com.view.media.bean.SearchMusicBean;
 import com.view.media.constant.Constant;
 import com.view.media.model.DownLoadMusicModel;
 import com.view.media.model.MusicLrcModel;
+import com.view.media.model.MusicMvModel;
 import com.view.media.utils.FileUtil;
 import com.view.media.utils.TimeUtil;
-import com.view.media.view.LrcView;
+import com.view.media.view.LyricView;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by Destiny on 2016/12/19.
  */
 
 public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, NetWorkStateListener {
-    private ImageView iv_start_pause, iv_prev, iv_next, iv_right;
+    private ImageView iv_start_pause, iv_prev, iv_next;
     private TextView tv_curr_duration, tv_total_duration;
-    private SeekBar sb_progress;
-    private LrcView lrc_main;
+    private AppCompatSeekBar sb_progress;
+    private LyricView lrc_main;
 
     private File[] files;
     private int position;
     private ArrayList<SearchMusicBean> list;
     private PlayService.MyBinder binder;
     private PlayServiceVConnection conn = new PlayServiceVConnection();
-    private DownLoadMusicApi downLoadMusicApi;
+    public DownLoadMusicApi downLoadMusicApi;
     private MusicLrcModel.Builder builder = new MusicLrcModel.Builder();
 
     @Override
@@ -74,7 +78,6 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
         setTitle();
 
-
     }
 
     private void downloadLrc() {
@@ -91,11 +94,10 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         iv_start_pause = (ImageView) findViewById(R.id.iv_start_pause);
         iv_prev = (ImageView) findViewById(R.id.iv_prev);
         iv_next = (ImageView) findViewById(R.id.iv_next);
-        iv_right = (ImageView) findViewById(R.id.iv_right);
         tv_curr_duration = (TextView) findViewById(R.id.tv_curr_duration);
         tv_total_duration = (TextView) findViewById(R.id.tv_total_duration);
-        sb_progress = (SeekBar) findViewById(R.id.sb_progress);
-        lrc_main = (LrcView) findViewById(R.id.lrc_main);
+        sb_progress = (AppCompatSeekBar) findViewById(R.id.sb_progress);
+        lrc_main = (LyricView) findViewById(R.id.lrc_main);
     }
 
     @Override
@@ -105,7 +107,6 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         iv_prev.setOnClickListener(this);
         iv_next.setOnClickListener(this);
         sb_progress.setOnSeekBarChangeListener(this);
-        iv_right.setOnClickListener(this);
     }
 
     @Override
@@ -130,15 +131,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             case R.id.iv_next:
                 next();
                 break;
-            case R.id.iv_right:
-                downLoadMusicApi.downloadMusic();
-
-                break;
         }
 
     }
 
     private void next() {
+        lrc_main.refushLyric();
         if (list == null) {
             if (position == files.length - 1) {
                 position = -1;
@@ -158,6 +156,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     ;
 
     private void prev() {
+        lrc_main.refushLyric();
         if (position == 0) {
             if (list == null) {
                 position = files.length;
@@ -186,13 +185,14 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     public void onStopTrackingTouch(SeekBar seekBar) {
         int duration = (int) (seekBar.getProgress() / 100.0 * binder.getDuration());
         binder.setDuration(duration);
-        if (lrc_main.hasLrc()) lrc_main.onDrag(duration);
+        lrc_main.onDrag(duration);
     }
 
     @Override
     public void onSuccess() {
-        lrc_main.loadLrc(new File(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + tv_title.getText().toString().trim() + ".lrc"));
+        lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
     }
+
 
     @Override
     public void onError() {
@@ -225,7 +225,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
         @Override
         public void curDuration(long duration) {
-            if (lrc_main.hasLrc()) lrc_main.updateTime(duration);
+            lrc_main.changeCurrent(duration);
             tv_curr_duration.setText(TimeUtil.getStrTimeFromeTimestamp(duration));
             sb_progress.setProgress((int) ((duration * 1f / binder.getDuration()) * 100));
         }
@@ -262,12 +262,10 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
         if (list == null) {
             String name = files[position].getName();
-            tv_title.setText(name.split(" - ")[1]);
-            Log.e("-----",Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + tv_title.getText().toString().trim() + ".lrc");
-            lrc_main.loadLrc(new File(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + tv_title.getText().toString().trim() + ".lrc"));
+            initToolBar(name,true);
+            lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
         } else {
-            tv_title.setText(list.get(position).name);
-            iv_right.setImageResource(R.mipmap.download);
+            initToolBar(list.get(position).name,true);
 
             downloadLrc();
 
@@ -280,7 +278,20 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
             downLoadMusicApi = new DownLoadMusicApi(model);
 
+            MusicMvModel mvModel=new MusicMvModel(list.get(position).mvId);
+            MusicMvApi mvApi=new MusicMvApi(mvModel,null,this);
+            mvApi.getMv(false);
+
+
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 為了讓 Toolbar 的 Menu 有作用，這邊的程式不可以拿掉
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.getItem(0).setVisible(false);
+        return true;
     }
 
 }

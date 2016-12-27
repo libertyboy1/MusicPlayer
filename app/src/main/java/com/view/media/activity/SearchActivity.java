@@ -18,9 +18,12 @@ import com.view.media.adapter.SearchMusicListAdapter;
 import com.view.media.api.NetWorkStateListener;
 import com.view.media.api.SearchMusicApi;
 import com.view.media.bean.SearchMusicBean;
+import com.view.media.constant.Constant;
 import com.view.media.model.SearchMusicModel;
+import com.view.media.utils.FileUtil;
 import com.view.media.view.ProgressView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import me.fangx.haorefresh.HaoRecyclerView;
@@ -42,8 +45,9 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     private SearchMusicModel model;
     private SearchMusicApi api;
     private ArrayList<SearchMusicBean> beans;
-    private ArrayList<SearchMusicBean> temp_beans=new ArrayList<SearchMusicBean>();
+    private ArrayList<SearchMusicBean> temp_beans = new ArrayList<SearchMusicBean>();
     private SearchMusicListAdapter adapter;
+    private File[] files;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +58,8 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     @Override
     public void initData() {
         super.initData();
-
-        tv_title.setText("搜索音乐");
-
+        initToolBar("搜索音乐", true);
+        files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
     }
 
     @Override
@@ -95,7 +98,7 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
         swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                model.page=1;
+                model.page = 1;
                 api.searchMusic(false);
             }
         });
@@ -112,7 +115,7 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.e("------","onItemClick");
+        Log.e("------", "onItemClick");
     }
 
     @Override
@@ -131,8 +134,25 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     public void onSuccess() {
         beans = api.getBean();
 
-        if (model.page==1){
+        for (SearchMusicBean bean : beans) {
+            for (File file : files) {
+                String name = file.getName();
+                String songName = name.split("\\|")[1].trim();
+                String singerName = name.split("\\|")[0].trim();
+                String albumName = name.split("\\|")[2].substring(0, name.split("\\|")[2].indexOf(".")).trim();
+                if (bean.name.equals(songName) && bean.singerName.equals(singerName) && bean.albumName.equals(albumName)) {
+                    bean.isDownload = true;
+                }
+            }
+        }
+
+        if (model.page == 1) {
             temp_beans.clear();
+            if (beans.size() == 0) {
+                iv_nothing.setVisibility(View.VISIBLE);
+            } else {
+                iv_nothing.setVisibility(View.GONE);
+            }
         }
 
         if (beans != null && beans.size() > 0) {
@@ -142,19 +162,18 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
             return;
         }
 
-        if (adapter==null){
-            adapter = new SearchMusicListAdapter(this,temp_beans);
+        if (adapter == null) {
+            adapter = new SearchMusicListAdapter(this, temp_beans);
             hao_recycleview.setAdapter(adapter);
-        }else{
+        } else {
             adapter.notifyDataSetChanged();
 
-            if (model.page==1){
+            if (model.page == 1) {
                 hao_recycleview.refreshComplete();
                 swiperefresh.setRefreshing(false);
-            }else{
+            } else {
                 hao_recycleview.loadMoreComplete();
             }
-
         }
 
     }

@@ -5,7 +5,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/main_bg"
+    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context="com.view.media.activity.MainActivity">
 
@@ -13,7 +13,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        >
 
         <ImageView
             android:id="@+id/iv_nothing"
@@ -31,7 +32,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="#30ffffff" />
+                android:background="#cdcdcd" />
 
             <LinearLayout
                 android:id="@+id/ll_download"
@@ -44,7 +45,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="下载管理"
-                    android:textColor="@android:color/white"
                     android:textSize="16dp" />
 
                 <TextView
@@ -54,7 +54,6 @@
                     android:layout_marginLeft="10dp"
                     android:gravity="center"
                     android:text="(99)"
-                    android:textColor="@android:color/white"
                     android:textSize="12dp" />
 
                 <View
@@ -72,7 +71,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="#30ffffff" />
+                android:background="#cdcdcd" />
 
             <com.view.media.view.ListSlideView
                 android:id="@+id/lv_main"

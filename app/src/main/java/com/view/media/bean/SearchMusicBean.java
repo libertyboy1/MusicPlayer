@@ -16,4 +16,6 @@ public class SearchMusicBean implements Serializable {
     public String singerName;
     public String albumName;
     public String id;
+    public String mvId;
+    public boolean isDownload=false;
 }

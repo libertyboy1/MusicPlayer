@@ -50,7 +50,12 @@ public class SearchMusicListAdapter extends RecyclerView.Adapter<SearchMusicList
             holder.tv_singer.setText(beans.get(position).singerName);
         }
 
-        holder.iv_tag.setVisibility(View.GONE);
+        if (beans.get(position).isDownload){
+            holder.iv_tag.setImageResource(R.mipmap.ic_lyric_poster_lyric_select);
+        }else{
+            holder.iv_tag.setImageResource(R.mipmap.icon_down);
+        }
+
 
         holder.ll_main.setOnClickListener(new View.OnClickListener() {
             @Override

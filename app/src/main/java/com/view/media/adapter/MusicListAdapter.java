@@ -17,7 +17,6 @@ import com.view.media.utils.StringUtil;
 
 import java.io.File;
 
-import static com.view.media.R.id.tv_title;
 
 /**
  * Created by Destiny on 2016/12/19.

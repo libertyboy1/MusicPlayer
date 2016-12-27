@@ -78,6 +78,7 @@ public class SearchMusicApi implements DialogInterface.OnDismissListener {
                         JSONArray singerNames = songs.getJSONObject(position).getJSONArray("artists");
                         String albumName = songs.getJSONObject(position).getJSONObject("album").getString("name");
                         String id = songs.getJSONObject(position).getString("id");
+                        String mvId = songs.getJSONObject(position).getString("mvid");
 
                         StringBuffer sb_singer = new StringBuffer();
                         for (int i = 0; i < singerNames.length(); i++) {
@@ -94,6 +95,7 @@ public class SearchMusicApi implements DialogInterface.OnDismissListener {
                         bean.name = songName;
                         bean.singerName = sb_singer.toString();
                         bean.id = id;
+                        bean.mvId=mvId;
                         beans.add(bean);
                     }
 

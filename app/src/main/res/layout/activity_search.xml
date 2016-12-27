@@ -4,7 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/main_bg"
+    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context="com.view.media.activity.MainActivity">
 
@@ -21,7 +21,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="70dp"
             android:src="@mipmap/nothing"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
-                android:background="#30ffffff" />
+                android:background="#cdcdcd" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,16 +43,15 @@
                     android:id="@+id/et_search"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginBottom="7dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginRight="15dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="7dp"
                     android:layout_weight="1"
                     android:background="@drawable/et_search_bg"
                     android:hint="输入歌曲/歌手/专辑"
+                    android:textColorHint="#cdcdcd"
                     android:padding="5dp"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@android:color/darker_gray"
                     android:textSize="12dp" />
 
                 <TextView
@@ -61,15 +60,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10dp"
                     android:text="搜索"
-                    android:textColor="@android:color/white"
                     android:textSize="16dp" />
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:background="#30ffffff" />
+
 
             <android.support.v4.widget.SwipeRefreshLayout
                 android:id="@+id/swiperefresh"

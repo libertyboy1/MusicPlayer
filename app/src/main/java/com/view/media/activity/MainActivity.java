@@ -2,14 +2,12 @@ package com.view.media.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.view.media.R;
 import com.view.media.adapter.MusicListAdapter;
@@ -19,13 +17,11 @@ import com.view.media.bean.DownLoadBean;
 import com.view.media.constant.Constant;
 import com.view.media.utils.FileUtil;
 import com.view.media.view.ListSlideView;
-
 import java.io.File;
 
 
 public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener, DownLoadFinishInterface {
     private ListSlideView lv_main;
-    private ImageView iv_right;
     private ImageView iv_nothing;
     private LinearLayout ll_download;
     private TextView tv_download_num;
@@ -39,11 +35,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         super.onCreate(savedInstanceState);
     }
 
+
     @Override
     public void initData() {
         super.initData();
-
-        iv_right.setImageResource(R.mipmap.search);
 
         files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
 
@@ -57,29 +52,28 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
         adapter = new MusicListAdapter(this, files);
         lv_main.setAdapter(adapter);
-        tv_title.setText("本地音乐");
+
+        initToolBar("",false);
+        mToolbar.setLogo(R.mipmap.icon);
+
     }
 
     @Override
     public void initView() {
         super.initView();
         lv_main = (ListSlideView) findViewById(R.id.lv_main);
-        iv_right = (ImageView) findViewById(R.id.iv_right);
         iv_nothing = (ImageView) findViewById(R.id.iv_nothing);
         ll_download = (LinearLayout) findViewById(R.id.ll_download);
         tv_download_num = (TextView) findViewById(R.id.tv_download_num);
-
     }
 
     @Override
     public void setListener() {
         super.setListener();
         lv_main.setOnItemClickListener(this);
-        iv_right.setOnClickListener(this);
         ll_download.setOnClickListener(this);
 
         DownLoadMusicApi.downLoadFinishInterface = this;
-
 
         adapter.setRemoveListener(new MusicListAdapter.OnRemoveListener() {
 
@@ -108,10 +102,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         super.onClick(view);
         Intent intent;
         switch (view.getId()) {
-            case R.id.iv_right:
-                intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
-                break;
             case R.id.ll_download:
                 intent = new Intent(this, DownLoadActivity.class);
                 startActivity(intent);
@@ -145,4 +135,13 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
         super.onDestroy();
         DownLoadMusicApi.downLoadFinishInterface = null;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // 為了讓 Toolbar 的 Menu 有作用，這邊的程式不可以拿掉
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.getItem(1).setVisible(false);
+        return true;
+    }
+
 }

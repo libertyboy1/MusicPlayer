@@ -1,6 +1,8 @@
 package com.view.media.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -24,28 +26,35 @@ public class DownLoadActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_download);
         super.onCreate(savedInstanceState);
-}
+    }
 
     @Override
     public void initData() {
         super.initData();
-        tv_title.setText("下载管理");
 
-        adapter=new DownLoadAdapter(this);
+        mToolbar.setTitle("下载管理");
+        mToolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(mToolbar);
+        mToolbar.setNavigationIcon(R.mipmap.back);
+
+        adapter = new DownLoadAdapter(this);
         lv_main.setAdapter(adapter);
 
-        if (DownLoadBean.downloadApis.size()==0){
+        if (DownLoadBean.downloadApis.size() == 0) {
             iv_nothing.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             iv_nothing.setVisibility(View.GONE);
         }
+
+        initToolBar("下载管理",true);
 
     }
 
     @Override
     public void initView() {
         super.initView();
-        lv_main= (ListSlideView) findViewById(R.id.lv_main);
-        iv_nothing= (ImageView) findViewById(R.id.iv_nothing);
+        lv_main = (ListSlideView) findViewById(R.id.lv_main);
+        iv_nothing = (ImageView) findViewById(R.id.iv_nothing);
     }
+
 }
