@@ -17,6 +17,28 @@
 
         <include layout="@layout/titlebar" />
 
+       <LinearLayout
+           android:gravity="center"
+           android:padding="15dp"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="horizontal">
+
+           <ImageView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:src="@mipmap/player_btn_bz_normal"/>
+
+           <ImageView
+               android:id="@+id/iv_mv"
+               android:layout_marginLeft="20dp"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:src="@mipmap/player_btn_mv_normal"/>
+
+       </LinearLayout>
+
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"

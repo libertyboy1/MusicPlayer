@@ -50,6 +50,12 @@ public class SearchMusicListAdapter extends RecyclerView.Adapter<SearchMusicList
             holder.tv_singer.setText(beans.get(position).singerName);
         }
 
+        if (!StringUtil.isEmpty(beans.get(position).mvId)){
+            holder.iv_mv.setVisibility(View.VISIBLE);
+        }else{
+            holder.iv_mv.setVisibility(View.GONE);
+        }
+
         if (beans.get(position).isDownload){
             holder.iv_tag.setImageResource(R.mipmap.ic_lyric_poster_lyric_select);
         }else{
@@ -79,7 +85,7 @@ public class SearchMusicListAdapter extends RecyclerView.Adapter<SearchMusicList
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tv_name, tv_singer;
         public LinearLayout ll_main;
-        public ImageView iv_tag;
+        public ImageView iv_tag,iv_mv;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -87,6 +93,7 @@ public class SearchMusicListAdapter extends RecyclerView.Adapter<SearchMusicList
             tv_singer = (TextView) itemView.findViewById(R.id.tv_singer);
             ll_main = (LinearLayout) itemView.findViewById(R.id.ll_main);
             iv_tag = (ImageView) itemView.findViewById(R.id.iv_tag);
+            iv_mv= (ImageView) itemView.findViewById(R.id.iv_mv);
         }
     }
 }

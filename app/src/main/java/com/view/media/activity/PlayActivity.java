@@ -3,9 +3,12 @@ package com.view.media.activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSeekBar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -24,6 +27,7 @@ import com.view.media.model.DownLoadMusicModel;
 import com.view.media.model.MusicLrcModel;
 import com.view.media.model.MusicMvModel;
 import com.view.media.utils.FileUtil;
+import com.view.media.utils.StringUtil;
 import com.view.media.utils.TimeUtil;
 import com.view.media.view.LyricView;
 
@@ -37,7 +41,7 @@ import static android.os.Build.VERSION_CODES.M;
  */
 
 public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener, NetWorkStateListener {
-    private ImageView iv_start_pause, iv_prev, iv_next;
+    private ImageView iv_start_pause, iv_prev, iv_next, iv_mv;
     private TextView tv_curr_duration, tv_total_duration;
     private AppCompatSeekBar sb_progress;
     private LyricView lrc_main;
@@ -76,8 +80,17 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
         iv_start_pause.setTag("0");
 
-        setTitle();
+        if (list != null) {
+            if (StringUtil.isEmpty(list.get(position).mvId)) {
+                iv_mv.setVisibility(View.GONE);
+            } else {
+                iv_mv.setVisibility(View.VISIBLE);
+            }
+        }else{
+            iv_mv.setVisibility(View.GONE);
+        }
 
+        setTitle();
     }
 
     private void downloadLrc() {
@@ -98,6 +111,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         tv_total_duration = (TextView) findViewById(R.id.tv_total_duration);
         sb_progress = (AppCompatSeekBar) findViewById(R.id.sb_progress);
         lrc_main = (LyricView) findViewById(R.id.lrc_main);
+        iv_mv = (ImageView) findViewById(R.id.iv_mv);
     }
 
     @Override
@@ -107,6 +121,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         iv_prev.setOnClickListener(this);
         iv_next.setOnClickListener(this);
         sb_progress.setOnSeekBarChangeListener(this);
+        iv_mv.setOnClickListener(this);
     }
 
     @Override
@@ -131,6 +146,22 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             case R.id.iv_next:
                 next();
                 break;
+            case R.id.iv_mv:
+                binder.pause();
+                Intent intent = new Intent(this, MvActivity.class);
+                intent.putExtra("soundName",mToolbar.getTitle().toString().trim());
+                intent.putExtra("mvid",list.get(position).mvId);
+                startActivityForResult(intent,1);
+                break;
+        }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (binder!=null){
+            binder.start();
         }
 
     }
@@ -262,10 +293,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
         if (list == null) {
             String name = files[position].getName();
-            initToolBar(name,true);
+            initToolBar(name.split("\\|")[1], true);
             lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
+
+
         } else {
-            initToolBar(list.get(position).name,true);
+            initToolBar(list.get(position).name, true);
 
             downloadLrc();
 
@@ -278,11 +311,6 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
             downLoadMusicApi = new DownLoadMusicApi(model);
 
-            MusicMvModel mvModel=new MusicMvModel(list.get(position).mvId);
-            MusicMvApi mvApi=new MusicMvApi(mvModel,null,this);
-            mvApi.getMv(false);
-
-
         }
     }
 
@@ -291,6 +319,11 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         // 為了讓 Toolbar 的 Menu 有作用，這邊的程式不可以拿掉
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.getItem(0).setVisible(false);
+
+        if (list == null) {
+            menu.getItem(1).setVisible(false);
+        }
+
         return true;
     }
 

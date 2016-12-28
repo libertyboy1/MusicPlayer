@@ -102,6 +102,10 @@ public class LyricView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        if (lrcs==null||lrcs.size()==0){
+            return;
+        }
+
         canvas.translate(0, mAnimateOffset);
 
         /***********初始化画笔***********/
@@ -155,6 +159,10 @@ public class LyricView extends View {
 
     public synchronized void changeCurrent(long time) {
 
+        if (lrcs==null||lrcs.size()==0){
+            return;
+        }
+
         if (currentPosition + 1 == lrcs.size()) {
             return;
         }
@@ -168,6 +176,10 @@ public class LyricView extends View {
     }
 
     public void onDrag(int progress) {
+
+        if (lrcs==null||lrcs.size()==0){
+            return;
+        }
 
         if (lrcs.get(lrcs.size()-1).time < progress){
             lrcs.get(currentPosition).isCurrent = false;

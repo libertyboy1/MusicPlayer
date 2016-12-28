@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.view.media.bean.SearchMusicBean;
 import com.view.media.model.SearchMusicModel;
+import com.view.media.utils.StringUtil;
 import com.view.media.view.ProgressDialog;
 
 import org.json.JSONArray;
@@ -58,11 +59,6 @@ public class SearchMusicApi implements DialogInterface.OnDismissListener {
         params.addBodyParameter("type", "1");
         params.addBodyParameter("offset", model.page + "");
 
-
-//        params.addBodyParameter("page", model.getPage() + "");
-//        params.addBodyParameter("size", model.getSize());
-//        params.addBodyParameter("q", model.getStr_search());
-
         cancelable = x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -95,7 +91,16 @@ public class SearchMusicApi implements DialogInterface.OnDismissListener {
                         bean.name = songName;
                         bean.singerName = sb_singer.toString();
                         bean.id = id;
-                        bean.mvId=mvId;
+                        if (StringUtil.isEmpty(mvId)) {
+                            bean.mvId = "";
+                        } else {
+                            if (Integer.parseInt(mvId) == 0) {
+                                bean.mvId = "";
+                            } else {
+                                bean.mvId = mvId;
+                            }
+                        }
+
                         beans.add(bean);
                     }
 

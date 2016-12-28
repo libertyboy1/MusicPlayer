@@ -15,11 +15,27 @@
         android:orientation="vertical"
         android:paddingLeft="15dp">
 
-        <TextView
-            android:id="@+id/tv_name"
+        <LinearLayout
+            android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="全世界都在说东北话" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_marginRight="15dp"
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全世界都在说东北话" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/iv_mv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/mv_song_list_tip_icon"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
