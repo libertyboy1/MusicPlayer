@@ -27,6 +27,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.view.media.R;
+import com.view.media.activity.MainActivity;
+import com.view.media.utils.DensityUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Timer;
@@ -36,7 +38,7 @@ import java.util.TimerTask;
  * Created by Destiny on 2016/12/28.
  */
 
-public class VideoView extends FrameLayout implements View.OnClickListener,MediaPlayer.OnPreparedListener,Animator.AnimatorListener{
+public class VideoView extends FrameLayout implements View.OnClickListener, MediaPlayer.OnPreparedListener, Animator.AnimatorListener {
     private android.widget.VideoView vv_main;
     private Toolbar mToolbar;
     private TextView tv_total_duration;
@@ -45,17 +47,19 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
     private ImageView iv_start_pause;
     private LinearLayout ll_controller;
     private AppBarLayout abl_titlebar;
+    private ImageView iv_volume;
 
-    private final int CURRENT_POSITION_ID=1;
-    private final int SHOW_GONG_ID=2;
+    private final int CURRENT_POSITION_ID = 1;
+    private final int SHOW_GONG_ID = 2;
     private final long ONEHOURMS = 3600000;//一小时的毫秒数
 
-    private boolean isAnimatorStop=true;
-    private boolean isShow=true;
+    private boolean isAnimatorStop = true;
+    private boolean isShow = true;
 
     private Timer timer = new Timer();
     private SimpleDateFormat formatter_hour = new SimpleDateFormat("HH:mm:ss");
     private SimpleDateFormat formatter_no_hour = new SimpleDateFormat("mm:ss");
+    private VolumePopWindow pop;
 
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -74,9 +78,9 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
     private Handler seeTime = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case CURRENT_POSITION_ID:
-                    if (vv_main.isPlaying()){
+                    if (vv_main.isPlaying()) {
                         sb_progress.setProgress((int) ((double) vv_main.getCurrentPosition() / vv_main.getDuration() * 100));
                         if (vv_main.getDuration() < ONEHOURMS) {
                             tv_curr_duration.setText(formatter_no_hour.format(vv_main.getCurrentPosition()));
@@ -86,8 +90,8 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
                     }
                     break;
                 case SHOW_GONG_ID:
-                    Log.e("-----","handler");
-                    if (isShow){
+                    Log.e("-----", "handler");
+                    if (isShow) {
                         gongControllerAndTitle();
                     }
                     break;
@@ -95,8 +99,8 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
         }
     };
 
-    private void gongControllerAndTitle(){
-        if (isAnimatorStop){
+    private void gongControllerAndTitle() {
+        if (isAnimatorStop) {
             float curY_bottom = ll_controller.getY();
             ObjectAnimator bottom_animator = ObjectAnimator.ofFloat(ll_controller, "y",
                     curY_bottom, curY_bottom + ll_controller.getHeight());
@@ -110,12 +114,12 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
             top_animator.setDuration(200);
             top_animator.start();
 
-            isShow=false;
+            isShow = false;
         }
     }
 
-    private void showControllerAndTitle(){
-        if (isAnimatorStop){
+    private void showControllerAndTitle() {
+        if (isAnimatorStop) {
             float curY_bottom = ll_controller.getY();
             ObjectAnimator bottom_animator = ObjectAnimator.ofFloat(ll_controller, "y",
                     curY_bottom, curY_bottom - ll_controller.getHeight());
@@ -129,7 +133,7 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
             top_animator.setDuration(200);
             top_animator.start();
 
-            isShow=true;
+            isShow = true;
 
         }
     }
@@ -149,60 +153,63 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
         initView();
     }
 
-    private void initView(){
+    private void initView() {
+        pop = new VolumePopWindow((Activity) getContext());
+
         View view = LayoutInflater.from(getContext()).inflate(R.layout.video, null);
-        vv_main= (android.widget.VideoView) view.findViewById(R.id.vv_main);
-        mToolbar= (Toolbar) view.findViewById(R.id.tb_main);
+        vv_main = (android.widget.VideoView) view.findViewById(R.id.vv_main);
+        mToolbar = (Toolbar) view.findViewById(R.id.tb_main);
         mToolbar.setNavigationIcon(R.mipmap.back);
-        tv_total_duration= (TextView) view.findViewById(R.id.tv_total_duration);
-        tv_curr_duration= (TextView) view.findViewById(R.id.tv_curr_duration);
-        sb_progress= (AppCompatSeekBar) view.findViewById(R.id.sb_progress);
-        iv_start_pause= (ImageView) view.findViewById(R.id.iv_start_pause);
-        ll_controller= (LinearLayout) view.findViewById(R.id.ll_controller);
-        abl_titlebar= (AppBarLayout) view.findViewById(R.id.abl_titlebar);
+        tv_total_duration = (TextView) view.findViewById(R.id.tv_total_duration);
+        tv_curr_duration = (TextView) view.findViewById(R.id.tv_curr_duration);
+        sb_progress = (AppCompatSeekBar) view.findViewById(R.id.sb_progress);
+        iv_start_pause = (ImageView) view.findViewById(R.id.iv_start_pause);
+        ll_controller = (LinearLayout) view.findViewById(R.id.ll_controller);
+        abl_titlebar = (AppBarLayout) view.findViewById(R.id.abl_titlebar);
+        iv_volume = (ImageView) view.findViewById(R.id.iv_volume);
 
         iv_start_pause.setTag(1);//暂停0，开始1
 
         mToolbar.setBackgroundColor(Color.parseColor("#40000000"));
 
-        FrameLayout.LayoutParams params=new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.gravity= Gravity.CENTER;
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER;
         vv_main.setLayoutParams(params);
+        vv_main.setFocusable(false);
+        vv_main.setClickable(false);
 
         setListener();
 
         addView(view);
     }
 
-    private void setListener(){
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                Log.e("---onTouchEvent----", "抬起");
+                break;
+            case MotionEvent.ACTION_DOWN:
+                if (!isShow) {
+                    showControllerAndTitle();
+                } else {
+                    gongControllerAndTitle();
+                }
+                Log.e("---onTouchEvent----", "按下");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.e("---onTouchEvent----", "移动");
+                break;
+        }
+
+        return false;
+    }
+
+    private void setListener() {
 
         vv_main.setOnPreparedListener(this);
         iv_start_pause.setOnClickListener(this);
-        vv_main.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()){
-                    case MotionEvent.ACTION_UP:
-                        Log.e("---onTouch----","抬起");
-                        break;
-                    case MotionEvent.ACTION_DOWN:
-                        Log.e("---onTouch----","按下");
-                        if (!isShow){
-                            showControllerAndTitle();
-//                            timer.schedule(timerTask1,1, 4000);
-                        }else{
-                            gongControllerAndTitle();
-                        }
-
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        Log.e("---onTouch----","移动");
-                        break;
-                }
-
-                return false;
-            }
-        });
+        iv_volume.setOnClickListener(this);
 
         sb_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -224,56 +231,61 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
         mToolbar.setNavigationOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((Activity)getContext()).finish();
+                ((Activity) getContext()).finish();
             }
         });
 
     }
 
-    public void setVideoUri(Uri uri){
+    public void setVideoUri(Uri uri) {
         vv_main.setVideoURI(uri);
         start();
     }
 
-    public void setVideoPath(String path){
+    public void setVideoPath(String path) {
         vv_main.setVideoPath(path);
     }
 
-    public void start(){
+    public void start() {
         vv_main.start();
         iv_start_pause.setTag(1);
         iv_start_pause.setImageResource(R.mipmap.mv_pause);
     }
 
-    public void pause(){
+    public void pause() {
         vv_main.pause();
         iv_start_pause.setTag(0);
         iv_start_pause.setImageResource(R.mipmap.mv_start);
     }
 
-    public void seekTo(int msec){
+    public void seekTo(int msec) {
         vv_main.seekTo(msec);
         start();
     }
 
-    public int getDuration(){
-        return  vv_main.getDuration();
+    public int getDuration() {
+        return vv_main.getDuration();
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(Color.WHITE);
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.iv_start_pause:
-                if ((int)iv_start_pause.getTag()==0){
+                if ((int) iv_start_pause.getTag() == 0) {
                     start();
-                }else{
+                } else {
                     pause();
                 }
+                break;
+            case R.id.iv_volume:
+                Log.e("---",ll_controller.getTop()+"");
+                pop.showAsDropDown(ll_controller,0,-DensityUtil.dip2px(getContext(),215)-ll_controller.getHeight(), Gravity.BOTTOM | Gravity.RIGHT);
+//                pop.showAtLocation(ll_controller, Gravity.TOP | Gravity.RIGHT, 0, 0);
                 break;
         }
     }
@@ -285,18 +297,18 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
         } else {
             tv_total_duration.setText(formatter_hour.format(vv_main.getDuration()));
         }
-        timer.schedule(timerTask,0, 1000);
+        timer.schedule(timerTask, 0, 1000);
 //        timer.schedule(timerTask1,1, 4000);
     }
 
     @Override
     public void onAnimationStart(Animator animator) {
-        isAnimatorStop=false;
+        isAnimatorStop = false;
     }
 
     @Override
     public void onAnimationEnd(Animator animator) {
-        isAnimatorStop=true;
+        isAnimatorStop = true;
     }
 
     @Override

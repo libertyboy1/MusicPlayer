@@ -31,6 +31,8 @@ public class LyricView extends View {
     private float mAnimateOffset;
     private ValueAnimator mAnimator;
 
+    private final String STR_NOTHING="暂无歌词";
+
     public LyricView(Context context) {
         super(context);
     }
@@ -104,17 +106,19 @@ public class LyricView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        if (lrcs==null||lrcs.size()==0){
-            return;
-        }
-
-        canvas.translate(0, mAnimateOffset);
-
         /***********初始化画笔***********/
         Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mTextPaint.setTextSize(DensityUtil.dip2px(getContext(),20));
         mTextPaint.setColor(Color.BLUE);
         /***********初始化画笔***********/
+
+        if (lrcs==null||lrcs.size()==0){
+            mTextPaint.setColor(Color.WHITE);
+            canvas.drawText(STR_NOTHING, getWidth() / 2 - mTextPaint.measureText(STR_NOTHING) / 2, getHeight() / 2, mTextPaint);
+            return;
+        }
+
+        canvas.translate(0, mAnimateOffset);
 
         /***********画当前行***********/
         canvas.drawText(lrcs.get(currentPosition).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(currentPosition).lrc) / 2, getHeight() / 2, mTextPaint);

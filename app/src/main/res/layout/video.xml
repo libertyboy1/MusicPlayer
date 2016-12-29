@@ -50,5 +50,12 @@
             android:text="00:00"
             android:textColor="@android:color/white" />
 
+        <ImageView
+            android:id="@+id/iv_volume"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="10dp"
+            android:src="@mipmap/volume" />
+
     </LinearLayout>
 </FrameLayout>
