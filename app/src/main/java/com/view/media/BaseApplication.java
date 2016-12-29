@@ -3,6 +3,7 @@ package com.view.media;
 import android.app.Application;
 
 import com.view.media.constant.Constant;
+import com.view.media.db.DbManage;
 import com.view.media.utils.FileUtil;
 
 import org.xutils.x;
@@ -19,6 +20,7 @@ public class BaseApplication extends Application {
         super.onCreate();
         initFile();
         x.Ext.init(this);
+        DbManage.init();
     }
 
     private void initFile() {

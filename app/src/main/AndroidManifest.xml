@@ -47,6 +47,7 @@
         <!-- MV界面-->
         <activity
             android:name=".activity.MvActivity"
+            android:theme="@style/NotitleTheme"
             android:configChanges="orientation|keyboard"
             android:launchMode="singleTop"
             android:screenOrientation="landscape" />

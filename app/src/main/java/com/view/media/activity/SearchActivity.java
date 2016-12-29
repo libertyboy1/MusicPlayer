@@ -19,15 +19,22 @@ import com.view.media.api.NetWorkStateListener;
 import com.view.media.api.SearchMusicApi;
 import com.view.media.bean.SearchMusicBean;
 import com.view.media.constant.Constant;
+import com.view.media.db.DbManage;
+import com.view.media.db.TableMusic;
 import com.view.media.model.SearchMusicModel;
 import com.view.media.utils.FileUtil;
 import com.view.media.view.ProgressView;
 
+import org.xutils.ex.DbException;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import me.fangx.haorefresh.HaoRecyclerView;
 import me.fangx.haorefresh.LoadMoreListener;
+
+import static com.view.media.db.DbManage.manager;
 
 /**
  * Created by Destiny on 2016/12/20.
@@ -47,7 +54,6 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     private ArrayList<SearchMusicBean> beans;
     private ArrayList<SearchMusicBean> temp_beans = new ArrayList<SearchMusicBean>();
     private SearchMusicListAdapter adapter;
-    private File[] files;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +65,6 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     public void initData() {
         super.initData();
         initToolBar("搜索音乐", true);
-        files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
     }
 
     @Override
@@ -135,14 +140,13 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
         beans = api.getBean();
 
         for (SearchMusicBean bean : beans) {
-            for (File file : files) {
-                String name = file.getName();
-                String songName = name.split("\\|")[1].trim();
-                String singerName = name.split("\\|")[0].trim();
-                String albumName = name.split("\\|")[2].substring(0, name.split("\\|")[2].indexOf(".")).trim();
-                if (bean.name.equals(songName) && bean.singerName.equals(singerName) && bean.albumName.equals(albumName)) {
+            try {
+                List<TableMusic> tb_musics = DbManage.manager.selector(TableMusic.class).where("mId", "=", bean.id).findAll();
+                if (tb_musics != null && tb_musics.size() > 0) {
                     bean.isDownload = true;
                 }
+            } catch (DbException e) {
+                e.printStackTrace();
             }
         }
 

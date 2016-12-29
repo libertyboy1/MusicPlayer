@@ -62,6 +62,7 @@ public class SearchMusicApi implements DialogInterface.OnDismissListener {
         cancelable = x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
+                Log.e("--SearchMusicApi--",result);
                 beans = new ArrayList<SearchMusicBean>();
                 try {
                     JSONObject object = new JSONObject(result);

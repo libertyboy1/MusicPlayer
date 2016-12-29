@@ -14,13 +14,17 @@ public class DownLoadMusicModel {
     private String singerName;
     private String albumName;
     private String type;
+    private String mvid;
+    private String mid;
 
-    public DownLoadMusicModel(String url, String songName, String singerName, String albumName, String type) {
+    public DownLoadMusicModel(String url, String songName, String singerName, String albumName, String type, String mvid, String mid) {
         this.url = url;
         this.songName = songName;
         this.singerName = singerName;
         this.albumName = albumName;
         this.type = type;
+        this.mvid = mvid;
+        this.mid = mid;
     }
 
     public String getUrl() {
@@ -47,6 +51,14 @@ public class DownLoadMusicModel {
         return type;
     }
 
+    public String getMvid() {
+        return mvid;
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
 
     public static class Builder {
         private String url;
@@ -54,6 +66,8 @@ public class DownLoadMusicModel {
         private String singerName;
         private String albumName;
         private String type;
+        private String mvid;
+        private String mid;
 
         public Builder() {
 
@@ -84,8 +98,18 @@ public class DownLoadMusicModel {
             return this;
         }
 
+        public Builder setMvid(String mvid) {
+            this.mvid = mvid;
+            return this;
+        }
+
+        public Builder setMid(String mid) {
+            this.mid = mid;
+            return this;
+        }
+
         public DownLoadMusicModel create() {
-            return new DownLoadMusicModel(url, songName, singerName, albumName, type);
+            return new DownLoadMusicModel(url, songName, singerName, albumName, type, mvid, mid);
         }
     }
 

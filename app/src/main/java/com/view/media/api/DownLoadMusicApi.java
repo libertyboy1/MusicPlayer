@@ -6,9 +6,12 @@ import android.util.Log;
 
 import com.view.media.bean.DownLoadBean;
 import com.view.media.constant.Constant;
+import com.view.media.db.DbManage;
+import com.view.media.db.TableMusic;
 import com.view.media.model.DownLoadMusicModel;
 
 import org.xutils.common.Callback;
+import org.xutils.ex.DbException;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
@@ -25,17 +28,19 @@ public class DownLoadMusicApi {
     public DownLoadMusicModel model;
     private Callback.Cancelable cancelable;
     public Handler handler;
+    private String suffix;
 
     public static DownLoadFinishInterface downLoadFinishInterface;
 
     public DownLoadMusicApi(DownLoadMusicModel model) {
         this.model = model;
+        suffix = model.getUrl().substring(model.getUrl().lastIndexOf("."), model.getUrl().length());
     }
 
     public void downloadMusic() {
         RequestParams requestParams = new RequestParams(model.getUrl());
-        String suffix = model.getUrl().substring(model.getUrl().lastIndexOf("."), model.getUrl().length());
-        requestParams.setSaveFilePath(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH + "/" + model.getSingerName() + "|" + model.getSongName() + "|" + model.getAlbumName() + suffix);
+
+        requestParams.setSaveFilePath(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH + "/" + model.getSongName() + suffix);
         cancelable = x.http().get(requestParams, new Callback.ProgressCallback<File>() {
             @Override
             public void onWaiting() {
@@ -43,12 +48,12 @@ public class DownLoadMusicApi {
 
             @Override
             public void onStarted() {
-                if (DownLoadBean.position!=-1){
+                if (DownLoadBean.position != -1) {
                     DownLoadBean.downloadApis.remove(DownLoadBean.position);
                 }
 
                 DownLoadBean.downloadApis.add(DownLoadMusicApi.this);
-                if (downLoadFinishInterface!=null){
+                if (downLoadFinishInterface != null) {
                     downLoadFinishInterface.onDownLoadStart();
                 }
             }
@@ -56,10 +61,10 @@ public class DownLoadMusicApi {
             @Override
             public void onLoading(long total, long current, boolean isDownloading) {
 //                Log.e("----progress----", current + "  /  " + total);
-                if (handler!=null){
-                    Message message=Message.obtain();
-                    message.obj= current + "," + total;
-                    message.what=0x1;
+                if (handler != null) {
+                    Message message = Message.obtain();
+                    message.obj = current + "," + total;
+                    message.what = 0x1;
                     handler.sendMessage(message);
                 }
             }
@@ -67,19 +72,35 @@ public class DownLoadMusicApi {
             @Override
             public void onSuccess(File result) {
                 DownLoadBean.downloadApis.remove(DownLoadMusicApi.this);
-                if (downLoadFinishInterface!=null){
+                if (downLoadFinishInterface != null) {
                     downLoadFinishInterface.onDownLoadSuccess();
                 }
-                if (handler!=null){
+                if (handler != null) {
                     handler.sendEmptyMessage(0x2);
                 }
+
+                TableMusic tb_music = new TableMusic();
+                tb_music.setAlbumName(model.getAlbumName());
+                tb_music.setSingerName(model.getSingerName());
+                tb_music.setSoungName(model.getSongName());
+                tb_music.setMp3Url(model.getUrl());
+                tb_music.setmId(model.getMid());
+                tb_music.setMvId(model.getMvid());
+                tb_music.setFilePath(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH + "/" + model.getSongName() + suffix);
+                tb_music.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + "/" + model.getSongName() + ".lrc");
+                try {
+                    DbManage.manager.saveOrUpdate(tb_music);
+                } catch (DbException e) {
+                    e.printStackTrace();
+                }
+
             }
 
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
                 ex.printStackTrace();
                 DownLoadBean.downloadApis.remove(DownLoadMusicApi.this);
-                if (handler!=null){
+                if (handler != null) {
                     handler.sendEmptyMessage(0x3);
                 }
             }
@@ -100,8 +121,8 @@ public class DownLoadMusicApi {
         cancelable.cancel();
     }
 
-    public void setHandler(Handler handler){
-        this.handler=handler;
+    public void setHandler(Handler handler) {
+        this.handler = handler;
     }
 
 }

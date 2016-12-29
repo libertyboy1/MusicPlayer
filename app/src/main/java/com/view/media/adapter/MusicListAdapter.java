@@ -9,13 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.view.media.R;
+import com.view.media.db.TableMusic;
 import com.view.media.utils.StringUtil;
 
 import java.io.File;
+import java.util.List;
+
+import static android.R.attr.name;
+import static com.view.media.bean.DownLoadBean.position;
 
 
 /**
@@ -24,19 +30,19 @@ import java.io.File;
 
 public class MusicListAdapter extends BaseAdapter {
     private Context mContext;
-    private File[] files;
+    private List<TableMusic> tb_musics;
     private OnRemoveListener mRemoveListener;
 
 
-    public MusicListAdapter(Context mContext, File[] files) {
+    public MusicListAdapter(Context mContext, List<TableMusic> tb_musics) {
         this.mContext = mContext;
-        this.files = files;
+        this.tb_musics = tb_musics;
     }
 
     @Override
     public int getCount() {
-        if (files != null)
-            return files.length;
+        if (tb_musics != null)
+            return tb_musics.size();
         return 0;
     }
 
@@ -60,6 +66,7 @@ public class MusicListAdapter extends BaseAdapter {
             holder.tv_name = (TextView) view.findViewById(R.id.tv_name);
             holder.tv_singer = (TextView) view.findViewById(R.id.tv_singer);
             holder.ll_delete = (LinearLayout) view.findViewById(R.id.ll_delete);
+            holder.iv_mv= (ImageView) view.findViewById(R.id.iv_mv);
 
             holder.ll_delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -74,10 +81,14 @@ public class MusicListAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        String name = files[i].getName();
+        if (!StringUtil.isEmpty(tb_musics.get(i).getMvId())){
+            holder.iv_mv.setVisibility(View.VISIBLE);
+        }else{
+            holder.iv_mv.setVisibility(View.GONE);
+        }
 
-        holder.tv_name.setText(name.split("\\|")[1]);
-        holder.tv_singer.setText(name.split("\\|")[0] + " · " + name.split("\\|")[2].substring(0, name.split("\\|")[2].indexOf(".")));
+        holder.tv_name.setText(tb_musics.get(i).getSoungName());
+        holder.tv_singer.setText(tb_musics.get(i).getSingerName() + " · " + tb_musics.get(i).getAlbumName());
 
         return view;
     }
@@ -85,6 +96,7 @@ public class MusicListAdapter extends BaseAdapter {
     class ViewHolder {
         TextView tv_name, tv_singer;
         LinearLayout ll_delete;
+        ImageView iv_mv;
     }
 
     public interface OnRemoveListener {

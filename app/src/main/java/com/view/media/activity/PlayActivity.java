@@ -23,6 +23,7 @@ import com.view.media.api.MusicMvApi;
 import com.view.media.api.NetWorkStateListener;
 import com.view.media.bean.SearchMusicBean;
 import com.view.media.constant.Constant;
+import com.view.media.db.TableMusic;
 import com.view.media.model.DownLoadMusicModel;
 import com.view.media.model.MusicLrcModel;
 import com.view.media.model.MusicMvModel;
@@ -34,6 +35,7 @@ import com.view.media.view.LyricView;
 import java.io.File;
 import java.util.ArrayList;
 
+import static android.R.attr.name;
 import static android.os.Build.VERSION_CODES.M;
 
 /**
@@ -46,7 +48,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     private AppCompatSeekBar sb_progress;
     private LyricView lrc_main;
 
-    private File[] files;
+    private ArrayList<TableMusic> tb_musics;
     private int position;
     private ArrayList<SearchMusicBean> list;
     private PlayService.MyBinder binder;
@@ -57,9 +59,11 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_play);
-        files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
+
         position = getIntent().getIntExtra("position", 0);
-        list = (ArrayList<SearchMusicBean>) getIntent().getSerializableExtra("bean");
+        list = (ArrayList<SearchMusicBean>) getIntent().getSerializableExtra("bean");//网络列表
+        tb_musics = (ArrayList<TableMusic>) getIntent().getSerializableExtra("tb_musics");//本地列表
+
         initMedia();
         super.onCreate(savedInstanceState);
     }
@@ -67,7 +71,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     private void initMedia() {
         Intent intent = new Intent(this, PlayService.class);
         if (list == null) {
-            intent.putExtra("file", files[position]);
+            intent.putExtra("tb_music", tb_musics.get(position));
         } else {
             intent.putExtra("bean", list.get(position));
         }
@@ -86,8 +90,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             } else {
                 iv_mv.setVisibility(View.VISIBLE);
             }
-        }else{
-            iv_mv.setVisibility(View.GONE);
+        } else {
+            if (StringUtil.isEmpty(tb_musics.get(position).getMvId())) {
+                iv_mv.setVisibility(View.GONE);
+            } else {
+                iv_mv.setVisibility(View.VISIBLE);
+            }
         }
 
         setTitle();
@@ -149,9 +157,13 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             case R.id.iv_mv:
                 binder.pause();
                 Intent intent = new Intent(this, MvActivity.class);
-                intent.putExtra("soundName",mToolbar.getTitle().toString().trim());
-                intent.putExtra("mvid",list.get(position).mvId);
-                startActivityForResult(intent,1);
+                intent.putExtra("soundName", mToolbar.getTitle().toString().trim());
+                if (list == null) {
+                    intent.putExtra("mvid", tb_musics.get(position).getMvId());
+                }else{
+                    intent.putExtra("mvid", list.get(position).mvId);
+                }
+                startActivityForResult(intent, 1);
                 break;
         }
 
@@ -160,7 +172,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     @Override
     protected void onStart() {
         super.onStart();
-        if (binder!=null){
+        if (binder != null) {
             binder.start();
         }
 
@@ -169,7 +181,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     private void next() {
         lrc_main.refushLyric();
         if (list == null) {
-            if (position == files.length - 1) {
+            if (position == tb_musics.size() - 1) {
                 position = -1;
             }
         } else {
@@ -190,7 +202,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         lrc_main.refushLyric();
         if (position == 0) {
             if (list == null) {
-                position = files.length;
+                position = tb_musics.size();
             } else {
                 position = list.size();
             }
@@ -292,8 +304,7 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     private void setTitle() {
 
         if (list == null) {
-            String name = files[position].getName();
-            initToolBar(name.split("\\|")[1], true);
+            initToolBar(tb_musics.get(position).getSoungName(), true);
             lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
 
 
@@ -307,6 +318,8 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
                     .setSingerName(list.get(position).singerName)
                     .setSongName(list.get(position).name)
                     .setAlbumName(list.get(position).albumName)
+                    .setMid(list.get(position).id)
+                    .setMvid(list.get(position).mvId)
                     .create();
 
             downLoadMusicApi = new DownLoadMusicApi(model);

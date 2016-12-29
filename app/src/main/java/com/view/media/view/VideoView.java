@@ -232,6 +232,7 @@ public class VideoView extends FrameLayout implements View.OnClickListener,Media
 
     public void setVideoUri(Uri uri){
         vv_main.setVideoURI(uri);
+        start();
     }
 
     public void setVideoPath(String path){

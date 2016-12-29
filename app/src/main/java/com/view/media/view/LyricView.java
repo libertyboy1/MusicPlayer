@@ -9,6 +9,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import com.view.media.utils.DensityUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -110,7 +112,7 @@ public class LyricView extends View {
 
         /***********初始化画笔***********/
         Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextSize(24);
+        mTextPaint.setTextSize(DensityUtil.dip2px(getContext(),20));
         mTextPaint.setColor(Color.BLUE);
         /***********初始化画笔***********/
 
@@ -130,8 +132,8 @@ public class LyricView extends View {
                 }
 
                 mTextPaint.setColor(Color.WHITE);
-                canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 - i * 40, mTextPaint);
-                lrcs.get(position).pointY = getHeight() / 2 - i * 40;
+                canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 - i * 60, mTextPaint);
+                lrcs.get(position).pointY = getHeight() / 2 - i * 60;
             }
         }
         /***********画当前行之前***********/
@@ -145,8 +147,8 @@ public class LyricView extends View {
                 }
             }
             mTextPaint.setColor(Color.WHITE);
-            canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 + i * 40, mTextPaint);
-            lrcs.get(position).pointY = getHeight() / 2 + i * 40;
+            canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 + i * 60, mTextPaint);
+            lrcs.get(position).pointY = getHeight() / 2 + i * 60;
         }
         /***********画当前行之后***********/
 
@@ -209,7 +211,7 @@ public class LyricView extends View {
      */
     private void newlineAnimation() {
         stopAnimation();
-        mAnimator = ValueAnimator.ofFloat(24, 0);
+        mAnimator = ValueAnimator.ofFloat(DensityUtil.dip2px(getContext(),20), 0);
         mAnimator.setDuration(500);
         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override

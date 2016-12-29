@@ -14,10 +14,14 @@ import com.view.media.adapter.MusicListAdapter;
 import com.view.media.api.DownLoadFinishInterface;
 import com.view.media.api.DownLoadMusicApi;
 import com.view.media.bean.DownLoadBean;
-import com.view.media.constant.Constant;
-import com.view.media.utils.FileUtil;
+import com.view.media.db.DbManage;
+import com.view.media.db.TableMusic;
 import com.view.media.view.ListSlideView;
+
+import org.xutils.ex.DbException;
+
 import java.io.File;
+import java.util.ArrayList;
 
 
 public class MainActivity extends BaseActivity implements AdapterView.OnItemClickListener, DownLoadFinishInterface {
@@ -27,7 +31,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     private TextView tv_download_num;
 
     private MusicListAdapter adapter;
-    private File[] files;
+    private ArrayList<TableMusic> tb_musics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +44,13 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     public void initData() {
         super.initData();
 
-        files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
+        try {
+            tb_musics= (ArrayList<TableMusic>) DbManage.manager.selector(TableMusic.class).findAll();
+        } catch (DbException e) {
+            e.printStackTrace();
+        }
 
-        if (files == null || files.length == 0) {
+        if (tb_musics == null || tb_musics.size() == 0) {
             iv_nothing.setVisibility(View.VISIBLE);
         } else {
             iv_nothing.setVisibility(View.GONE);
@@ -50,7 +58,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
         tv_download_num.setText("(" + DownLoadBean.downloadApis.size() + ")");
 
-        adapter = new MusicListAdapter(this, files);
+        adapter = new MusicListAdapter(this, tb_musics);
         lv_main.setAdapter(adapter);
 
         initToolBar("",false);
@@ -79,12 +87,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
             @Override
             public void onRemoveItem(int position) {
-                // TODO 删除按钮的回调，注意也可以放在adapter里面处理，具体根据自己项目来
-                files[position].delete();
-
-                files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
-                adapter = new MusicListAdapter(MainActivity.this, files);
-                lv_main.setAdapter(adapter);
+                try {
+                    DbManage.manager.delete(tb_musics.get(position));
+                    new File(tb_musics.get(position).getFilePath()).delete();
+                    tb_musics= (ArrayList<TableMusic>) DbManage.manager.selector(TableMusic.class).findAll();
+                    adapter = new MusicListAdapter(MainActivity.this, tb_musics);
+                    lv_main.setAdapter(adapter);
+                } catch (DbException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -94,6 +105,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Intent intent = new Intent(this, PlayActivity.class);
         intent.putExtra("position", i);
+        intent.putExtra("tb_musics",tb_musics);
         startActivity(intent);
     }
 
@@ -112,17 +124,20 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     @Override
     public void onDownLoadSuccess() {
-        files = FileUtil.getFiles(Constant.STR_SDCARD_PATH + Constant.STR_MUSIC_FILE_PATH);
-        adapter = new MusicListAdapter(this, files);
-        lv_main.setAdapter(adapter);
+        try {
+            tb_musics= (ArrayList<TableMusic>) DbManage.manager.selector(TableMusic.class).findAll();
+            adapter = new MusicListAdapter(this, tb_musics);
+            lv_main.setAdapter(adapter);
 
-        if (files == null || files.length == 0) {
-            iv_nothing.setVisibility(View.VISIBLE);
-        } else {
-            iv_nothing.setVisibility(View.GONE);
+            if (tb_musics == null || tb_musics.size() == 0) {
+                iv_nothing.setVisibility(View.VISIBLE);
+            } else {
+                iv_nothing.setVisibility(View.GONE);
+            }
+            tv_download_num.setText("(" + DownLoadBean.downloadApis.size() + ")");
+        } catch (DbException e) {
+            e.printStackTrace();
         }
-
-        tv_download_num.setText("(" + DownLoadBean.downloadApis.size() + ")");
     }
 
     @Override

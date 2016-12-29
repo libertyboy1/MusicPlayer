@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.view.media.activity.PlayActivity;
 import com.view.media.bean.SearchMusicBean;
+import com.view.media.db.TableMusic;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,11 +84,11 @@ public class PlayService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
 
-        File file = (File) intent.getSerializableExtra("file");
+        TableMusic tb_music = (TableMusic) intent.getSerializableExtra("tb_music");
         SearchMusicBean musicBean = (SearchMusicBean) intent.getSerializableExtra("bean");
         try {
             if (musicBean == null) {
-                mp.setDataSource(file.getAbsolutePath());
+                mp.setDataSource(tb_music.getFilePath());
             } else {
                 mp.setDataSource(musicBean.mp3url);
             }

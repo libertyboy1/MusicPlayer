@@ -3,6 +3,7 @@ package com.view.media.activity;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.view.media.R;
@@ -56,8 +57,8 @@ public class MvActivity extends BaseActivity implements NetWorkStateListener,Vie
     @Override
     public void onSuccess() {
         bean = mvApi.getBean();
-        vv_main.setVideoUri(Uri.parse(bean.str_480));
-        vv_main.start();
+        Log.e("-----",bean.str_240);
+        vv_main.setVideoUri(Uri.parse(bean.str_240));
     }
 
     @Override
