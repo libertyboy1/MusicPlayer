@@ -1,8 +1,4 @@
-package com.view.media.model;
-
-import android.content.Context;
-
-import static android.R.attr.name;
+package com.view.media.apiModel;
 
 /**
  * Created by Destiny on 2016/12/21.

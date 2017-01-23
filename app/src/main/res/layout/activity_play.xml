@@ -18,6 +18,7 @@
         <include layout="@layout/titlebar" />
 
        <LinearLayout
+           android:visibility="gone"
            android:gravity="center"
            android:padding="15dp"
            android:layout_width="match_parent"

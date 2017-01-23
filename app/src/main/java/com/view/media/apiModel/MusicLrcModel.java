@@ -1,4 +1,4 @@
-package com.view.media.model;
+package com.view.media.apiModel;
 
 /**
  * Created by Destiny on 2016/12/20.

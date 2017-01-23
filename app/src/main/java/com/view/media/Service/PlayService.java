@@ -29,6 +29,7 @@ public class PlayService extends Service {
     private Timer timer = new Timer();
     public OnMusicListener myListener;
 
+
     public interface OnMusicListener {
         void curDuration(long duration);
 

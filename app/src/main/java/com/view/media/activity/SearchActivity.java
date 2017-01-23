@@ -2,13 +2,12 @@ package com.view.media.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,29 +17,27 @@ import com.view.media.adapter.SearchMusicListAdapter;
 import com.view.media.api.NetWorkStateListener;
 import com.view.media.api.SearchMusicApi;
 import com.view.media.bean.SearchMusicBean;
-import com.view.media.constant.Constant;
+import com.view.media.bean.SearchMusicList;
 import com.view.media.db.DbManage;
 import com.view.media.db.TableMusic;
-import com.view.media.model.SearchMusicModel;
-import com.view.media.utils.FileUtil;
+import com.view.media.apiModel.SearchMusicModel;
 import com.view.media.view.ProgressView;
 
 import org.xutils.ex.DbException;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.fangx.haorefresh.HaoRecyclerView;
 import me.fangx.haorefresh.LoadMoreListener;
 
-import static com.view.media.db.DbManage.manager;
+import static com.view.media.bean.SearchMusicList.temp_beans;
 
 /**
  * Created by Destiny on 2016/12/20.
  */
 
-public class SearchActivity extends BaseActivity implements AdapterView.OnItemClickListener, NetWorkStateListener {
+public class SearchActivity extends BaseActivity implements SearchMusicListAdapter.OnItemClickListener, NetWorkStateListener {
 
     private SwipeRefreshLayout swiperefresh;
     private HaoRecyclerView hao_recycleview;
@@ -52,8 +49,9 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     private SearchMusicModel model;
     private SearchMusicApi api;
     private ArrayList<SearchMusicBean> beans;
-    private ArrayList<SearchMusicBean> temp_beans = new ArrayList<SearchMusicBean>();
     private SearchMusicListAdapter adapter;
+
+    private int currentPosition=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,21 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     @Override
     public void initData() {
         super.initData();
+        SearchMusicList.temp_beans=new ArrayList<SearchMusicBean>();
         initToolBar("搜索音乐", true);
+
+        MainActivity.musicListener=new MainActivity.MusicListener() {
+            @Override
+            public void nextMusic(int position) {
+                startPlayMusic(position);
+            }
+
+            @Override
+            public void prevMusic(int position) {
+                startPlayMusic(position);
+            }
+        };
+
     }
 
     @Override
@@ -98,7 +110,6 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
     public void setListener() {
         super.setListener();
         tv_search.setOnClickListener(this);
-        hao_recycleview.setOnItemClickListener(this);
 
         swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -116,11 +127,6 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
             }
         });
 
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.e("------", "onItemClick");
     }
 
     @Override
@@ -151,7 +157,7 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
         }
 
         if (model.page == 1) {
-            temp_beans.clear();
+            SearchMusicList.temp_beans.clear();
             if (beans.size() == 0) {
                 iv_nothing.setVisibility(View.VISIBLE);
             } else {
@@ -160,15 +166,16 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
         }
 
         if (beans != null && beans.size() > 0) {
-            temp_beans.addAll(beans);
+            SearchMusicList.temp_beans.addAll(beans);
         } else {
             hao_recycleview.loadMoreEnd();
             return;
         }
 
         if (adapter == null) {
-            adapter = new SearchMusicListAdapter(this, temp_beans);
+            adapter = new SearchMusicListAdapter(this, SearchMusicList.temp_beans);
             hao_recycleview.setAdapter(adapter);
+            adapter.setOnItemClickListener(this);
         } else {
             adapter.notifyDataSetChanged();
 
@@ -194,6 +201,41 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
 
     @Override
     public void onFinished() {
+
+    }
+
+
+    private void startPlayMusic(int position) {
+        MainActivity.binder.stop();
+        MainActivity.binder.setDataSource(SearchMusicList.temp_beans.get(position).mp3url);
+        MainActivity.binder.prepare();
+        MainActivity.binder.start();
+    }
+
+
+    @Override
+    public void onItemClick(View v, final int position) {
+        if (currentPosition!=position){
+            startPlayMusic(position);
+            MainActivity.tv_sound_name.setText(SearchMusicList.temp_beans.get(position).name);
+            MainActivity.tv_singer_name.setText(SearchMusicList.temp_beans.get(position).singerName);
+            MainActivity. binder.getMediaPlayer().setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    Log.e("SearchActivity", "开始播放");
+                    Intent intent = new Intent(SearchActivity.this, PlayActivity.class);
+                    intent.putExtra("position", position);
+                    intent.putExtra("bean", SearchMusicList.temp_beans);
+                    startActivity(intent);
+                }
+            });
+        }else{
+            Intent intent = new Intent(SearchActivity.this, PlayActivity.class);
+            intent.putExtra("position", position);
+            intent.putExtra("bean", SearchMusicList.temp_beans);
+            startActivity(intent);
+        }
+
 
     }
 }

@@ -3,12 +3,10 @@ package com.view.media.api;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.view.media.constant.Constant;
-import com.view.media.model.MusicLrcModel;
+import com.view.media.apiModel.MusicLrcModel;
 import com.view.media.utils.FileUtil;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -48,7 +46,7 @@ public class MusicLrcApi {
                     String lyric = object.getJSONObject("lrc").getString("lyric");
                     Log.e("JAVA", "onSuccess result:" + lyric);
 
-                    FileUtil.writeSDFile(lyric, Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH, model.getName() + ".lrc");
+                    FileUtil.writeSDFile(lyric, Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH, model.getName().trim()+ ".lrc");
 
                     if (listener != null) {
                         listener.onSuccess();

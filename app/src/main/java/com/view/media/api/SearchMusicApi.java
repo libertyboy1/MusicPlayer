@@ -4,9 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.view.media.bean.SearchMusicBean;
-import com.view.media.model.SearchMusicModel;
+import com.view.media.apiModel.SearchMusicModel;
 import com.view.media.utils.StringUtil;
 import com.view.media.view.ProgressDialog;
 

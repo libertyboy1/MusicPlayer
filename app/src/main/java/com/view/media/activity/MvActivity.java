@@ -10,7 +10,7 @@ import com.view.media.R;
 import com.view.media.api.MusicMvApi;
 import com.view.media.api.NetWorkStateListener;
 import com.view.media.bean.MusicMvBean;
-import com.view.media.model.MusicMvModel;
+import com.view.media.apiModel.MusicMvModel;
 import com.view.media.view.VideoView;
 
 

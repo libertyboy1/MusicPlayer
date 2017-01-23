@@ -2,13 +2,12 @@ package com.view.media.api;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.view.media.bean.DownLoadBean;
 import com.view.media.constant.Constant;
 import com.view.media.db.DbManage;
 import com.view.media.db.TableMusic;
-import com.view.media.model.DownLoadMusicModel;
+import com.view.media.apiModel.DownLoadMusicModel;
 
 import org.xutils.common.Callback;
 import org.xutils.ex.DbException;
@@ -16,8 +15,6 @@ import org.xutils.http.RequestParams;
 import org.xutils.x;
 
 import java.io.File;
-
-import static org.xutils.x.http;
 
 
 /**

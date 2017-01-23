@@ -5,19 +5,14 @@ import android.content.DialogInterface;
 import android.util.Log;
 
 import com.view.media.bean.MusicMvBean;
-import com.view.media.bean.SearchMusicBean;
-import com.view.media.model.MusicMvModel;
-import com.view.media.model.SearchMusicModel;
+import com.view.media.apiModel.MusicMvModel;
 import com.view.media.view.ProgressDialog;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
-
-import java.util.ArrayList;
 
 /**
  * Created by Destiny on 2016/12/20.

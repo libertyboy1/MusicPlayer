@@ -57,6 +57,9 @@
         <!-- 播放音乐服务-->
         <service android:name=".Service.PlayService" />
 
+        <!-- 播放音乐服务-->
+        <service android:name=".Service.PlayService2" />
+
     </application>
 
 </manifest>

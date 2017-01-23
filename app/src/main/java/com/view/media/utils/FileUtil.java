@@ -3,6 +3,8 @@ package com.view.media.utils;
 import android.os.Environment;
 import android.util.Log;
 
+import com.view.media.constant.Constant;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -27,8 +29,8 @@ public class FileUtil {
         return file.listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
-                if(file.getName().endsWith(".mp3")||file.getName().endsWith(".m4a")||file.getName().endsWith(".flac")
-                        ||file.getName().endsWith(".ape")||file.getName().endsWith(".wav")||file.getName().endsWith(".wma")){
+                if (file.getName().endsWith(".mp3") || file.getName().endsWith(".m4a") || file.getName().endsWith(".flac")
+                        || file.getName().endsWith(".ape") || file.getName().endsWith(".wav") || file.getName().endsWith(".wma")) {
                     return true;
                 }
                 return false;
@@ -53,15 +55,17 @@ public class FileUtil {
      * str为内容
      */
     public static void writeSDFile(String str, String path, String fileName) throws IOException {
-            File file = new File(path, fileName);
+        File file = new File(path, fileName);
 
-            if (!file.exists()) {
-                file.createNewFile();
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(str.getBytes());
-                fos.close();
-                System.out.println("写入成功：");
-            }
+        if (!file.exists()) {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(str.getBytes());
+            fos.close();
+            System.out.println("写入成功：");
+
+        }
+        Log.e("2---", file.getAbsolutePath());
     }
 
     /**

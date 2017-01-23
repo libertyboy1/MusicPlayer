@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +21,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 
 /**
@@ -108,8 +111,8 @@ public class LyricView extends View {
 
         /***********初始化画笔***********/
         Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextSize(DensityUtil.dip2px(getContext(),20));
-        mTextPaint.setColor(Color.BLUE);
+        mTextPaint.setTextSize(DensityUtil.dip2px(getContext(),18));
+
         /***********初始化画笔***********/
 
         if (lrcs==null||lrcs.size()==0){
@@ -120,11 +123,8 @@ public class LyricView extends View {
 
         canvas.translate(0, mAnimateOffset);
 
-        /***********画当前行***********/
-        canvas.drawText(lrcs.get(currentPosition).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(currentPosition).lrc) / 2, getHeight() / 2, mTextPaint);
-        lrcs.get(currentPosition).pointY = getHeight() / 2;
-        /***********画当前行***********/
 
+        mTextPaint.setColor(Color.WHITE);
         /***********画当前行之前***********/
         if (currentPosition > 0) {
             for (int position = currentPosition - 1, i = 1; position >= 0; position--, i++) {
@@ -134,10 +134,8 @@ public class LyricView extends View {
                         break;//退出
                     }
                 }
-
-                mTextPaint.setColor(Color.WHITE);
-                canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 - i * 60, mTextPaint);
-                lrcs.get(position).pointY = getHeight() / 2 - i * 60;
+                canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 - i * DensityUtil.dip2px(getContext(),30), mTextPaint);
+                lrcs.get(position).pointY = getHeight() / 2 - i * DensityUtil.dip2px(getContext(),30);
             }
         }
         /***********画当前行之前***********/
@@ -150,11 +148,16 @@ public class LyricView extends View {
                     break;//退出
                 }
             }
-            mTextPaint.setColor(Color.WHITE);
-            canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 + i * 60, mTextPaint);
-            lrcs.get(position).pointY = getHeight() / 2 + i * 60;
+            canvas.drawText(lrcs.get(position).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(position).lrc) / 2, getHeight() / 2 + i * DensityUtil.dip2px(getContext(),30), mTextPaint);
+            lrcs.get(position).pointY = getHeight() / 2 + i * DensityUtil.dip2px(getContext(),30);
         }
         /***********画当前行之后***********/
+
+        /***********画当前行***********/
+        mTextPaint.setColor(Color.BLUE);
+        canvas.drawText(lrcs.get(currentPosition).lrc, getWidth() / 2 - mTextPaint.measureText(lrcs.get(currentPosition).lrc) / 2, getHeight() / 2, mTextPaint);
+        lrcs.get(currentPosition).pointY = getHeight() / 2;
+        /***********画当前行***********/
 
 
     }
@@ -184,6 +187,7 @@ public class LyricView extends View {
     public void onDrag(int progress) {
 
         if (lrcs==null||lrcs.size()==0){
+            Log.e("ssssss", "onDrag: ssssss");
             return;
         }
 

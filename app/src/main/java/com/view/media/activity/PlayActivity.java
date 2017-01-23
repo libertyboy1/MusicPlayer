@@ -1,12 +1,9 @@
 package com.view.media.activity;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.v4.content.ContextCompat;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.util.Log;
 import android.view.Menu;
@@ -16,27 +13,23 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.view.media.R;
-import com.view.media.Service.PlayService;
 import com.view.media.api.DownLoadMusicApi;
 import com.view.media.api.MusicLrcApi;
-import com.view.media.api.MusicMvApi;
 import com.view.media.api.NetWorkStateListener;
 import com.view.media.bean.SearchMusicBean;
 import com.view.media.constant.Constant;
 import com.view.media.db.TableMusic;
-import com.view.media.model.DownLoadMusicModel;
-import com.view.media.model.MusicLrcModel;
-import com.view.media.model.MusicMvModel;
-import com.view.media.utils.FileUtil;
+import com.view.media.apiModel.DownLoadMusicModel;
+import com.view.media.apiModel.MusicLrcModel;
 import com.view.media.utils.StringUtil;
 import com.view.media.utils.TimeUtil;
 import com.view.media.view.LyricView;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import static android.R.attr.name;
-import static android.os.Build.VERSION_CODES.M;
+import static com.view.media.activity.MainActivity.binder;
 
 /**
  * Created by Destiny on 2016/12/19.
@@ -51,36 +44,47 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     private ArrayList<TableMusic> tb_musics;
     private int position;
     private ArrayList<SearchMusicBean> list;
-    private PlayService.MyBinder binder;
-    private PlayServiceVConnection conn = new PlayServiceVConnection();
     public DownLoadMusicApi downLoadMusicApi;
     private MusicLrcModel.Builder builder = new MusicLrcModel.Builder();
+
+    private Timer timer = new Timer();
+
+    private Handler cur_duration = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            lrc_main.changeCurrent(MainActivity.binder.getMediaPlayer().getCurrentPosition());
+            tv_curr_duration.setText(TimeUtil.getStrTimeFromeTimestamp((long) MainActivity.binder.getMediaPlayer().getCurrentPosition()));
+            sb_progress.setProgress((int) ((MainActivity.binder.getMediaPlayer().getCurrentPosition() * 1f / MainActivity.binder.getDuration()) * 100));
+        }
+    };
+
+    private TimerTask timerTask = new TimerTask() {
+        @Override
+        public void run() {
+            cur_duration.sendEmptyMessage(1);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_play);
 
         position = getIntent().getIntExtra("position", 0);
+
         list = (ArrayList<SearchMusicBean>) getIntent().getSerializableExtra("bean");//网络列表
         tb_musics = (ArrayList<TableMusic>) getIntent().getSerializableExtra("tb_musics");//本地列表
 
-        initMedia();
+        timer.schedule(timerTask, 0, 1000);
+
         super.onCreate(savedInstanceState);
     }
 
-    private void initMedia() {
-        Intent intent = new Intent(this, PlayService.class);
-        if (list == null) {
-            intent.putExtra("tb_music", tb_musics.get(position));
-        } else {
-            intent.putExtra("bean", list.get(position));
-        }
-        bindService(intent, conn, BIND_AUTO_CREATE);
-    }
 
     @Override
     public void initData() {
         super.initData();
+
+        tv_total_duration.setText(TimeUtil.getStrTimeFromeTimestamp((long) MainActivity.binder.getDuration()));
 
         iv_start_pause.setTag("0");
 
@@ -141,11 +145,11 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
                 if (iv_start_pause.getTag().equals("0")) {
                     iv_start_pause.setTag("1");
                     iv_start_pause.setImageResource(R.drawable.landscape_play_btn);
-                    binder.pause();
+                    MainActivity.binder.pause();
                 } else {
                     iv_start_pause.setTag("0");
                     iv_start_pause.setImageResource(R.drawable.landscape_pause_btn);
-                    binder.start();
+                    MainActivity.binder.start();
                 }
                 break;
             case R.id.iv_prev:
@@ -155,12 +159,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
                 next();
                 break;
             case R.id.iv_mv:
-                binder.pause();
+                MainActivity.binder.pause();
                 Intent intent = new Intent(this, MvActivity.class);
                 intent.putExtra("soundName", mToolbar.getTitle().toString().trim());
                 if (list == null) {
                     intent.putExtra("mvid", tb_musics.get(position).getMvId());
-                }else{
+                } else {
                     intent.putExtra("mvid", list.get(position).mvId);
                 }
                 startActivityForResult(intent, 1);
@@ -169,14 +173,6 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (binder != null) {
-            binder.start();
-        }
-
-    }
 
     private void next() {
         lrc_main.refushLyric();
@@ -184,15 +180,21 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             if (position == tb_musics.size() - 1) {
                 position = -1;
             }
+            position++;
+            MainActivity.binder.stop();
+            MainActivity.binder.setDataSource(tb_musics.get(position).getMp3Url());
+            MainActivity.binder.start();
         } else {
             if (position == list.size() - 1) {
                 position = -1;
             }
+            position++;
+            MainActivity.binder.stop();
+            MainActivity.binder.setDataSource(list.get(position).mp3url);
+            MainActivity.binder.start();
         }
 
-        position++;
-        unBindMusicService();
-        initMedia();
+
         setTitle();
     }
 
@@ -206,11 +208,16 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
             } else {
                 position = list.size();
             }
-
         }
         position--;
-        unBindMusicService();
-        initMedia();
+        MainActivity.binder.stop();
+        if (list == null) {
+            MainActivity.binder.setDataSource(tb_musics.get(position).getMp3Url());
+        } else {
+            MainActivity.binder.setDataSource(list.get(position).mp3url);
+        }
+
+        MainActivity.binder.start();
         setTitle();
     }
 
@@ -227,13 +234,16 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         int duration = (int) (seekBar.getProgress() / 100.0 * binder.getDuration());
+        Log.e("PlayActivity", "duration:" + duration);
         binder.setDuration(duration);
         lrc_main.onDrag(duration);
     }
 
     @Override
     public void onSuccess() {
+        Log.e("1---", Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
         lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
+        lrc_main.onDrag(MainActivity.binder.getMediaPlayer().getCurrentPosition());
     }
 
 
@@ -252,62 +262,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
     }
 
-    public class PlayServiceVConnection implements ServiceConnection, PlayService.OnMusicListener {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            binder = (PlayService.MyBinder) iBinder;
-            tv_total_duration.setText(TimeUtil.getStrTimeFromeTimestamp(binder.getDuration()));
-            binder.setCurDurationListener(this);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            binder = null;
-        }
-
-        @Override
-        public void curDuration(long duration) {
-            lrc_main.changeCurrent(duration);
-            tv_curr_duration.setText(TimeUtil.getStrTimeFromeTimestamp(duration));
-            sb_progress.setProgress((int) ((duration * 1f / binder.getDuration()) * 100));
-        }
-
-        @Override
-        public void nextMusic() {
-            next();
-        }
-
-        @Override
-        public void prevMusic() {
-            prev();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unBindMusicService();
-    }
-
-    private void unBindMusicService() {
-        binder.stop();
-        unbindService(conn);
-    }
-
     private void setTitle() {
 
         if (list == null) {
             initToolBar(tb_musics.get(position).getSoungName(), true);
             lrc_main.setLrcPath(Constant.STR_SDCARD_PATH + Constant.STR_LRC_FILE_PATH + mToolbar.getTitle().toString().trim() + ".lrc");
-
-
+            lrc_main.onDrag(MainActivity.binder.getMediaPlayer().getCurrentPosition());
         } else {
             initToolBar(list.get(position).name, true);
 
@@ -340,4 +300,12 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timerTask.cancel();
+        timer.cancel();
+        timerTask = null;
+        timer = null;
+    }
 }

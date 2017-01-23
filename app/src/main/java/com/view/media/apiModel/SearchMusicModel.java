@@ -1,9 +1,4 @@
-package com.view.media.model;
-
-import android.util.Log;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+package com.view.media.apiModel;
 
 /**
  * Created by Destiny on 2016/12/20.

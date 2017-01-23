@@ -13,8 +13,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/iv_nothing"
@@ -81,6 +80,72 @@
                 android:divider="@null"
                 android:listSelector="@null"
                 app:mode="right" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/darker_gray" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="20dp">
+
+                <LinearLayout
+                    android:paddingRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+                    <TextView
+                        android:id="@+id/tv_sound_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="歌曲名称" />
+
+
+                    <TextView
+                        android:id="@+id/tv_singer_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="歌手名" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.AppCompatSeekBar
+                    android:id="@+id/sb_progress"
+                    android:visibility="invisible"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+
+                <ImageView
+                    android:layout_marginRight="10dp"
+                    android:id="@+id/iv_start_pause"
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/landscape_pause_btn" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/darker_gray" />
+
 
         </LinearLayout>
 
