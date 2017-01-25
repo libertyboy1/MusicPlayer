@@ -67,18 +67,19 @@ public class PlayActivity extends BaseActivity implements SeekBar.OnSeekBarChang
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_play);
-
         position = getIntent().getIntExtra("position", 0);
-
         list = (ArrayList<SearchMusicBean>) getIntent().getSerializableExtra("bean");//网络列表
         tb_musics = (ArrayList<TableMusic>) getIntent().getSerializableExtra("tb_musics");//本地列表
-
         timer.schedule(timerTask, 0, 1000);
 
         super.onCreate(savedInstanceState);
     }
 
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_play;
+    }
 
     @Override
     public void initData() {

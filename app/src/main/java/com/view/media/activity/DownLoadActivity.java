@@ -24,8 +24,12 @@ public class DownLoadActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_download);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_download;
     }
 
     @Override

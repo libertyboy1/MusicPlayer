@@ -95,9 +95,6 @@ public class PlayService2 extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-
-
-
         return binder;
     }
 
@@ -108,6 +105,5 @@ public class PlayService2 extends Service {
             mp.release();
             mp = null;
         }
-
     }
 }

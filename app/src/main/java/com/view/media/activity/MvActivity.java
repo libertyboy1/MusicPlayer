@@ -27,8 +27,12 @@ public class MvActivity extends BaseActivity implements NetWorkStateListener,Vie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        setContentView(R.layout.activity_mv);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_mv;
     }
 
     @Override

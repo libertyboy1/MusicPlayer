@@ -90,7 +90,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_main);
         super.onCreate(savedInstanceState);
 
         Intent intent = new Intent(this, PlayService2.class);
@@ -98,6 +97,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemClic
 
     }
 
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_main;
+    }
 
     @Override
     public void initData() {

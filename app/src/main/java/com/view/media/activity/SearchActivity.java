@@ -55,8 +55,12 @@ public class SearchActivity extends BaseActivity implements SearchMusicListAdapt
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setContentView(R.layout.activity_search);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.activity_search;
     }
 
     @Override
